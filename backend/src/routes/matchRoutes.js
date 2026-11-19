@@ -6,3 +6,4 @@ const router = express.Router();
 router.get('/matches', getMatches);
 
 module.exports = router;
+

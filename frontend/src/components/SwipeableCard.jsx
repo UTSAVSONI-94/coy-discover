@@ -71,3 +71,4 @@ export default function SwipeableCard({ profile, onSwipe, disabled = false }) {
     </motion.div>
   );
 }
+

@@ -20,3 +20,4 @@ async function getFeed(req, res, next) {
 module.exports = {
   getFeed,
 };
+

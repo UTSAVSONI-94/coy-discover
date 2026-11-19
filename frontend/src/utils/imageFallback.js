@@ -8,3 +8,4 @@ export function handleImageError(e) {
     e.target.src = FALLBACK_AVATAR;
   }
 }
+

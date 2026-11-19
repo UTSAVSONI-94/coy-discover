@@ -20,3 +20,4 @@ async function getMatches(req, res, next) {
 module.exports = {
   getMatches,
 };
+

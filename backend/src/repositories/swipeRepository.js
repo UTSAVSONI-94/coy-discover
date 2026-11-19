@@ -48,3 +48,4 @@ const swipeRepository = {
 };
 
 module.exports = swipeRepository;
+

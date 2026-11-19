@@ -18,27 +18,26 @@ Per the assignment specification:
 
 ## 2. Key Features
 
-* **Mobile-First Responsive UI**: Styled with Tailwind CSS, custom design tokens, and viewport optimization for mobile touch devices, tablets, and desktop displays.
-* **Fluid Framer Motion Swiping**:
-  * Touch and mouse drag physics with elastic resistance.
-  * Card tilt and rotation proportional to horizontal drag distance.
-  * Real-time dynamic visual feedback: green **LIKE** badge on right drag, red **PASS** badge on left drag.
-  * Incomplete drags (`|offset| < 100px`) smoothly spring back to the center without triggering an API request.
-  * Desktop action buttons (Pass & Like) with smooth directional fly-out animations.
-* **Atomic Mutual Matching & Celebration**:
-  * Celebratory *"It's a Match!"* modal overlay triggered immediately upon a reciprocal like.
-  * Matched person's photograph, name, and confirmation badge with zero messaging bloat.
-* **Zero-Leakage Privacy Architecture**:
-  * The discovery feed API (`GET /api/feed`) never exposes incoming likes or swipe metadata.
-  * Candidates who already liked the demo user look completely identical to those who haven't.
-  * One-sided likes never trigger notifications and never appear in the Matches view.
-* **Persistent SQLite Database**:
-  * Stored on disk using `better-sqlite3` with Write-Ahead Logging (WAL) and foreign key integrity.
-  * Swipes, matches, and profile exclusions persist permanently across browser reloads and server restarts.
-* **Resilient Concurrency & Offline Fallbacks**:
-  * Double-submission locks preventing rapid-fire clicks.
-  * Database transaction conflict handling (`409 Conflict`) for concurrent swipe attempts.
-  * Offline-ready inline SVG avatar fallback when external image sources are slow or unreachable.
+- **Mobile-First Responsive UI**: Styled with Tailwind CSS, adapted for mobile viewports, tablets, and desktop displays.
+- **Card Swiping & Gestures**:
+  - Touch and mouse drag gestures with spring physics (Framer Motion).
+  - Dynamic LIKE (right drag) and PASS (left drag) overlays.
+  - Threshold detection (`|offset| > 100px`) triggers swipe; sub-threshold drags snap back smoothly.
+  - Action buttons (Pass and Like) for desktop and tap-based interaction.
+- **Mutual Matching & Celebration Modal**:
+  - Celebration modal displayed immediately when a reciprocal like occurs.
+  - Matched user photo, name, and option to keep swiping or view matches.
+- **Privacy Enforcement**:
+  - `GET /api/feed` returns candidate profiles without revealing incoming likes.
+  - Profiles that have liked the demo user look identical in the feed to those that have not.
+  - One-sided likes never trigger notifications and never appear in Matches.
+- **Persistent Storage**:
+  - SQLite database using `better-sqlite3` with Write-Ahead Logging (WAL) and foreign keys enabled.
+  - Swipes and matches persist on disk across page reloads and server restarts.
+- **Error Handling & Offline Fallbacks**:
+  - In-flight request locking to prevent duplicate submissions from rapid clicks.
+  - Conflict handling (`409 Conflict`) on duplicate swipe attempts.
+  - SVG avatar fallback for image loading errors or offline use.
 
 ---
 
@@ -396,13 +395,13 @@ npm run test:e2e
 ```
 
 ### Automated Test Suite Results (74 Assertions)
-* ✅ **Candidate Profile Seeding**: 32 candidates seeded with full metadata and >= 3 interests.
-* ✅ **Scenario A (Mutual Match)**: Swiping right on Profile 2 (Maya Lin) triggers `isMatch: true`, returns match details, and renders in Matches.
-* ✅ **Scenario B (One-Sided Like)**: Swiping right on Profile 4 (Chloe Dubois) returns `isMatch: false` and is strictly omitted from Matches.
-* ✅ **Scenario C (Pass Action)**: Swiping left on Profile 3 (Lucas Silva) returns `isMatch: false` and permanently excludes Lucas from the feed.
-* ✅ **Scenario D (Persistence)**: Reloading the application retains all swiped exclusions and preserves mutual matches.
-* ✅ **Concurrency & Race Conditions**: 6 simultaneous swipe requests for the same profile handled gracefully (1 success, 5 conflict responses).
-* ✅ **Input Validation**: Non-numeric IDs, invalid actions, self-swiping, and non-existent profiles rejected with proper HTTP status codes.
+- **Candidate Profile Seeding**: 32 candidates seeded with complete metadata and >= 3 interests.
+- **Scenario A (Mutual Match)**: Swiping right on Profile 2 (Maya Lin) triggers `isMatch: true`, returns match details, and renders in Matches.
+- **Scenario B (One-Sided Like)**: Swiping right on Profile 4 (Chloe Dubois) returns `isMatch: false` and is omitted from Matches.
+- **Scenario C (Pass Action)**: Swiping left on Profile 3 (Lucas Silva) returns `isMatch: false` and permanently excludes Lucas from the feed.
+- **Scenario D (Persistence)**: Reloading the application retains all swiped exclusions and preserves mutual matches.
+- **Concurrency & Race Conditions**: Simultaneous swipe requests for the same profile handled gracefully (1 success, conflicts returned).
+- **Input Validation**: Non-numeric IDs, invalid actions, self-swiping, and non-existent profiles rejected with proper HTTP status codes.
 
 ---
 
@@ -410,11 +409,11 @@ npm run test:e2e
 
 | Discover Card Feed | Drag Gesture / Feedback |
 | :---: | :---: |
-| *(Placeholder: Add screenshot of profile card in Discover tab)* | *(Placeholder: Add screenshot of card dragging with LIKE badge)* |
+| *(Placeholder: screenshot of profile card in Discover tab)* | *(Placeholder: screenshot of card dragging with LIKE badge)* |
 
-| It's a Match! Overlay | Mutual Matches View |
+| Match Overlay | Mutual Matches View |
 | :---: | :---: |
-| *(Placeholder: Add screenshot of match celebration screen)* | *(Placeholder: Add screenshot of Matches list view)* |
+| *(Placeholder: screenshot of match celebration screen)* | *(Placeholder: screenshot of Matches list view)* |
 
 ---
 
@@ -422,19 +421,19 @@ npm run test:e2e
 
 | Requirement | Status | Notes |
 | :--- | :---: | :--- |
-| **Home Tab Placeholder** | ✅ Completed | Blank placeholder per assignment instructions. |
-| **Discover Tab** | ✅ Completed | Fully operational card discovery experience. |
-| **30+ Mock Profiles** | ✅ Completed | 32 realistic profiles with photos, bios, locations, and interests. |
-| **Pre-seeded Incoming Likes** | ✅ Completed | 8 candidate profiles pre-seeded to enable demo matches. |
-| **One Card at a Time** | ✅ Completed | Clean portrait orientation with responsive aspect ratio. |
-| **Mobile Drag & Desktop Buttons** | ✅ Completed | Touch gestures via Framer Motion + circular Pass/Like buttons. |
-| **Visual Feedback & Badges** | ✅ Completed | Real-time dynamic LIKE and PASS overlays based on drag direction. |
-| **Exclusion of Swiped Profiles** | ✅ Completed | Swiped profiles never reappear in feed. |
-| **Empty Feed State** | ✅ Completed | Friendly caught-up screen with feed refresh button. |
-| **Discreet Matching** | ✅ Completed | Match occurs exclusively on mutual like; zero leakage of incoming likes. |
-| **Celebration Screen** | ✅ Completed | "It's a Match!" celebration modal overlay. |
-| **Matches View** | ✅ Completed | Dedicated grid view listing all confirmed mutual matches. |
-| **Persistence Across Reloads** | ✅ Completed | Stored on disk in SQLite with WAL mode. |
+| **Home Tab Placeholder** | Complete | Blank placeholder per assignment instructions. |
+| **Discover Tab** | Complete | Fully operational card discovery experience. |
+| **30+ Mock Profiles** | Complete | 32 profiles with photos, bios, locations, and interests. |
+| **Pre-seeded Incoming Likes** | Complete | 8 candidate profiles pre-seeded to enable demo matches. |
+| **One Card at a Time** | Complete | Portrait orientation with responsive aspect ratio. |
+| **Mobile Drag & Desktop Buttons** | Complete | Touch gestures via Framer Motion + circular Pass/Like buttons. |
+| **Visual Feedback & Badges** | Complete | LIKE and PASS overlays based on drag direction. |
+| **Exclusion of Swiped Profiles** | Complete | Swiped profiles never reappear in feed. |
+| **Empty Feed State** | Complete | Empty state with feed refresh button. |
+| **Discreet Matching** | Complete | Match occurs exclusively on mutual like; zero leakage of incoming likes. |
+| **Celebration Screen** | Complete | "It's a Match!" celebration modal overlay. |
+| **Matches View** | Complete | Grid view listing all confirmed mutual matches. |
+| **Persistence Across Reloads** | Complete | Stored on disk in SQLite with WAL mode. |
 
 ### Limitations / Explicit Non-Goals
 * **No Authentication**: Per assignment specs, a single demo user (`id: 1`) is used.

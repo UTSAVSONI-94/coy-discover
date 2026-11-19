@@ -1,12 +1,9 @@
 const feedService = require('../services/feedService');
-const CONSTANTS = require('../config/constants');
+const { DEMO_USER_ID } = require('../config/constants');
 
-/**
- * Controller for GET /api/feed
- */
 async function getFeed(req, res, next) {
   try {
-    const profiles = feedService.getFeed(CONSTANTS.DEMO_USER_ID);
+    const profiles = feedService.getFeed(DEMO_USER_ID);
     return res.status(200).json({
       success: true,
       count: profiles.length,
@@ -20,4 +17,3 @@ async function getFeed(req, res, next) {
 module.exports = {
   getFeed,
 };
-

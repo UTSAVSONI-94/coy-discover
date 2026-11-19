@@ -2,10 +2,6 @@ import React, { useState } from 'react';
 import { MapPin, Sparkles, User } from 'lucide-react';
 import { FALLBACK_AVATAR } from '../utils/imageFallback';
 
-/**
- * ProfileCard Component
- * Displays a single candidate profile with portrait aesthetics and tags.
- */
 export default function ProfileCard({ profile }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -16,7 +12,6 @@ export default function ProfileCard({ profile }) {
 
   return (
     <div className="relative w-full aspect-[3/4.2] sm:aspect-[3/4.4] max-h-[580px] bg-[#1a1e24] rounded-3xl overflow-hidden shadow-2xl border border-gray-800/80 flex flex-col justify-end select-none">
-      {/* Background Image Container */}
       <div className="absolute inset-0 bg-[#15181d]">
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900 animate-pulse">
@@ -38,15 +33,12 @@ export default function ProfileCard({ profile }) {
           draggable={false}
         />
 
-        {/* Gradient Overlay for Readable Typography */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
       </div>
 
-      {/* Content Area */}
-      <div className="relative z-10 p-5 sm:p-6 text-white space-y-3">
-        {/* Name and Age */}
+      <div className="relative z-10 p-5 sm:p-6 text-white space-y-2.5">
         <div className="flex items-baseline gap-2">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-md">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow">
             {name}
           </h2>
           <span className="text-xl sm:text-2xl font-medium text-gray-300">
@@ -54,7 +46,6 @@ export default function ProfileCard({ profile }) {
           </span>
         </div>
 
-        {/* Location / College */}
         {location && (
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-300 font-medium">
             <MapPin className="w-3.5 h-3.5 text-[#FF5252] shrink-0" />
@@ -62,14 +53,12 @@ export default function ProfileCard({ profile }) {
           </div>
         )}
 
-        {/* Bio */}
         {bio && (
           <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 leading-relaxed">
             {bio}
           </p>
         )}
 
-        {/* Interests Tags */}
         {Array.isArray(interests) && interests.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {interests.slice(0, 4).map((interest, idx) => (
@@ -87,4 +76,3 @@ export default function ProfileCard({ profile }) {
     </div>
   );
 }
-

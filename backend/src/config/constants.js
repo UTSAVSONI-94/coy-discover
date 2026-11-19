@@ -1,13 +1,7 @@
-/**
- * Application constants
- */
-const CONSTANTS = {
+module.exports = {
   DEMO_USER_ID: 1,
   SWIPE_ACTIONS: {
     LIKE: 'LIKE',
-    PASS: 'PASS',
-  },
+    PASS: 'PASS'
+  }
 };
-
-module.exports = CONSTANTS;
-

@@ -3,10 +3,6 @@ import { api } from '../services/api';
 import { Heart, MapPin, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
 import { handleImageError } from '../utils/imageFallback';
 
-/**
- * MatchesView Component
- * Displays mutual matches retrieved from GET /api/matches.
- */
 export default function MatchesView() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,9 +27,9 @@ export default function MatchesView() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-4">
-        <div className="w-8 h-8 border-2 border-[#FF5252] border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-gray-400 font-medium">Loading your matches...</p>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-3">
+        <div className="w-7 h-7 border-2 border-[#FF5252] border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-gray-400">Loading matches...</p>
       </div>
     );
   }
@@ -41,14 +37,14 @@ export default function MatchesView() {
   if (error) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-3">
-        <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
-          <AlertCircle className="w-6 h-6" />
+        <div className="w-11 h-11 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+          <AlertCircle className="w-5 h-5" />
         </div>
         <p className="text-sm font-semibold text-white">Could not load matches</p>
         <p className="text-xs text-gray-400 max-w-xs">{error}</p>
         <button
           onClick={fetchMatches}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full bg-gray-800 text-gray-200 hover:bg-gray-700 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full bg-gray-800 text-gray-200 hover:bg-gray-700 transition"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Retry
         </button>
@@ -59,12 +55,12 @@ export default function MatchesView() {
   if (matches.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-3 select-none">
-        <div className="w-16 h-16 rounded-full bg-[#1e232b] border border-gray-800 flex items-center justify-center text-[#FF5252] shadow-inner mb-2">
-          <Heart className="w-7 h-7" />
+        <div className="w-14 h-14 rounded-full bg-[#1e232b] border border-gray-800 flex items-center justify-center text-[#FF5252] mb-1">
+          <Heart className="w-6 h-6" />
         </div>
         <h3 className="text-base font-bold text-white">No matches yet</h3>
         <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-          When you like someone and they like you back, your mutual match will appear here!
+          When someone you like likes you back, they'll show up here.
         </p>
       </div>
     );
@@ -81,22 +77,21 @@ export default function MatchesView() {
         </div>
         <button
           onClick={fetchMatches}
-          title="Refresh matches"
-          className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/60 transition-colors"
+          title="Refresh"
+          className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/60 transition"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {matches.map((item) => {
           const profile = item.profile;
           return (
             <div
               key={item.matchId}
-              className="bg-[#181c22] border border-gray-800/90 rounded-2xl overflow-hidden shadow-lg p-3 flex gap-3.5 items-center hover:border-gray-700 transition-colors"
+              className="bg-[#181c22] border border-gray-800 rounded-2xl overflow-hidden p-3 flex gap-3.5 items-center hover:border-gray-700 transition"
             >
-              {/* Photo Thumbnail */}
               <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-gray-900 shrink-0 border border-gray-800">
                 <img
                   src={profile.photo}
@@ -106,13 +101,10 @@ export default function MatchesView() {
                 />
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-sm font-bold text-white truncate">
-                    {profile.name}, {profile.age}
-                  </h4>
-                </div>
+                <h4 className="text-sm font-bold text-white truncate">
+                  {profile.name}, {profile.age}
+                </h4>
 
                 {profile.location && (
                   <p className="flex items-center gap-1 text-[11px] text-gray-400 truncate">
@@ -123,7 +115,7 @@ export default function MatchesView() {
 
                 <div className="pt-0.5">
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    <Sparkles className="w-2.5 h-2.5" /> Mutual Match
+                    <Sparkles className="w-2.5 h-2.5" /> Matched
                   </span>
                 </div>
               </div>
@@ -134,4 +126,3 @@ export default function MatchesView() {
     </div>
   );
 }
-

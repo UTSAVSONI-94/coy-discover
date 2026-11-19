@@ -4,11 +4,10 @@ import HomePlaceholder from './components/HomePlaceholder';
 import Navigation from './components/Navigation';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('discover'); // 'home' | 'discover'
+  const [activeTab, setActiveTab] = useState('discover');
 
   return (
     <div className="min-h-screen bg-[#0e1015] text-white flex flex-col justify-between">
-      {/* Active Tab View */}
       <div className="flex-1 flex flex-col">
         {activeTab === 'home' ? (
           <div className="flex-1 flex flex-col w-full max-w-md mx-auto min-h-screen">
@@ -23,7 +22,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Primary Tab Navigation */}
       <Navigation
         activeTab={activeTab}
         onSelectTab={(tabId) => setActiveTab(tabId)}

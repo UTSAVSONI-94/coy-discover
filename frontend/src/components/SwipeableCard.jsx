@@ -5,25 +5,15 @@ import ProfileCard from './ProfileCard';
 const SWIPE_THRESHOLD = 85;
 const VELOCITY_THRESHOLD = 350;
 
-/**
- * SwipeableCard Component
- * High-performance Framer Motion card with instant physics-based fly-out animations.
- */
 export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
   const x = useMotionValue(0);
   const controls = useAnimation();
   const swipingRef = useRef(false);
 
-  // Dynamic rotation proportional to horizontal drag distance
   const rotate = useTransform(x, [-250, 250], [-18, 18]);
-
-  // Opacity for LIKE badge (visible when dragged right)
   const likeOpacity = useTransform(x, [20, SWIPE_THRESHOLD], [0, 1]);
-
-  // Opacity for PASS badge (visible when dragged left)
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -20], [1, 0]);
 
-  // Handle external button trigger (Desktop Like/Pass buttons)
   useEffect(() => {
     if (!swipeTrigger || swipingRef.current) return;
     swipingRef.current = true;
@@ -42,7 +32,6 @@ export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
     });
   }, [swipeTrigger, controls, onSwipe]);
 
-  // Handle touch / mouse drag release
   const handleDragEnd = async (event, info) => {
     if (swipingRef.current) return;
 
@@ -70,7 +59,6 @@ export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
       onSwipe('PASS');
       swipingRef.current = false;
     } else {
-      // Smooth spring back to center for incomplete drags
       controls.start({
         x: 0,
         rotate: 0,
@@ -90,7 +78,6 @@ export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
       whileTap={{ cursor: 'grabbing' }}
       className="relative w-full cursor-grab active:cursor-grabbing touch-none select-none z-20"
     >
-      {/* LIKE Badge (Top-Left) */}
       <motion.div
         style={{ opacity: likeOpacity }}
         className="absolute top-6 left-6 z-30 pointer-events-none px-4 py-1.5 border-4 border-emerald-400 rounded-xl -rotate-12 bg-emerald-950/70 backdrop-blur-md shadow-lg"
@@ -100,7 +87,6 @@ export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
         </span>
       </motion.div>
 
-      {/* PASS Badge (Top-Right) */}
       <motion.div
         style={{ opacity: passOpacity }}
         className="absolute top-6 right-6 z-30 pointer-events-none px-4 py-1.5 border-4 border-[#FF5252] rounded-xl rotate-12 bg-red-950/70 backdrop-blur-md shadow-lg"
@@ -110,7 +96,6 @@ export default function SwipeableCard({ profile, onSwipe, swipeTrigger }) {
         </span>
       </motion.div>
 
-      {/* Base Profile Card */}
       <ProfileCard profile={profile} />
     </motion.div>
   );

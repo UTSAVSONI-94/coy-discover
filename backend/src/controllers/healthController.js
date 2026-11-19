@@ -1,6 +1,3 @@
-/**
- * Health check controller
- */
 function getHealth(req, res) {
   res.status(200).json({
     status: 'ok',
@@ -12,4 +9,3 @@ function getHealth(req, res) {
 module.exports = {
   getHealth,
 };
-

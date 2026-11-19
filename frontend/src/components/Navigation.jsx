@@ -1,9 +1,6 @@
 import React from 'react';
 import { Home, Compass } from 'lucide-react';
 
-/**
- * App Navigation Tab Bar (Mobile-first bottom navigation, desktop responsive)
- */
 export default function Navigation({ activeTab, onSelectTab }) {
   const tabs = [
     { id: 'home', label: 'Home', icon: Home },
@@ -20,17 +17,17 @@ export default function Navigation({ activeTab, onSelectTab }) {
             <button
               key={tab.id}
               onClick={() => onSelectTab(tab.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-2 transition-all duration-200 select-none ${
+              className={`flex-1 flex flex-col items-center justify-center py-2 transition select-none ${
                 isActive ? 'text-[#FF5252]' : 'text-gray-400 hover:text-gray-200'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
                 {isActive && (
                   <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#FF5252]" />
                 )}
               </div>
-              <span className={`text-[11px] mt-1 font-medium ${isActive ? 'text-white font-semibold' : ''}`}>
+              <span className={`text-[11px] mt-1 ${isActive ? 'text-white font-semibold' : 'font-medium'}`}>
                 {tab.label}
               </span>
             </button>
@@ -40,4 +37,3 @@ export default function Navigation({ activeTab, onSelectTab }) {
     </nav>
   );
 }
-

@@ -311,9 +311,7 @@ const PRE_EXISTING_LIKER_IDS = [2, 5, 8, 12, 16, 20, 24, 30];
  * Uses SQLite transaction and INSERT OR REPLACE / INSERT OR IGNORE for idempotency.
  */
 function seedDatabase({ reset = false } = {}) {
-  console.log(`[Seed] Starting database seeding (reset=${reset})...`);
-
-  const insertProfileStmt = db.prepare(`
+  const insertProfile = db.prepare(`
     INSERT INTO profiles (id, name, age, photo, bio, location, interests, is_demo)
     VALUES (@id, @name, @age, @photo, @bio, @location, @interests, @is_demo)
     ON CONFLICT(id) DO UPDATE SET
@@ -326,13 +324,12 @@ function seedDatabase({ reset = false } = {}) {
       is_demo = excluded.is_demo
   `);
 
-  const insertSwipeStmt = db.prepare(`
+  const insertSwipe = db.prepare(`
     INSERT OR IGNORE INTO swipes (swiper_id, swiped_id, action)
     VALUES (?, ?, ?)
   `);
 
-  const runSeeding = db.transaction(() => {
-    // If reset is requested, clear demo user outgoing swipes & matches
+  const tx = db.transaction(() => {
     if (reset) {
       db.prepare('DELETE FROM swipes WHERE swiper_id = ?').run(CONSTANTS.DEMO_USER_ID);
       db.prepare('DELETE FROM matches WHERE user_one_id = ? OR user_two_id = ?').run(
@@ -341,26 +338,22 @@ function seedDatabase({ reset = false } = {}) {
       );
     }
 
-    // 1. Seed Demo User
-    insertProfileStmt.run(DEMO_USER);
+    insertProfile.run(DEMO_USER);
 
-    // 2. Seed Mock Candidates
     for (const profile of MOCK_PROFILES) {
-      insertProfileStmt.run({
+      insertProfile.run({
         ...profile,
         is_demo: 0,
       });
     }
 
-    // 3. Seed Incoming Likes on Demo User (swiper = candidate, swiped = DEMO_USER_ID, action = LIKE)
     for (const likerId of PRE_EXISTING_LIKER_IDS) {
-      insertSwipeStmt.run(likerId, CONSTANTS.DEMO_USER_ID, CONSTANTS.SWIPE_ACTIONS.LIKE);
+      insertSwipe.run(likerId, CONSTANTS.DEMO_USER_ID, CONSTANTS.SWIPE_ACTIONS.LIKE);
     }
   });
 
-  runSeeding();
+  tx();
 
-  // Summary counts
   const profileCount = db.prepare('SELECT COUNT(*) as count FROM profiles').get().count;
   const candidateCount = db.prepare('SELECT COUNT(*) as count FROM profiles WHERE is_demo = 0').get().count;
   const incomingLikesCount = db.prepare('SELECT COUNT(*) as count FROM swipes WHERE swiped_id = ? AND action = ?').get(
@@ -369,10 +362,7 @@ function seedDatabase({ reset = false } = {}) {
   ).count;
   const matchesCount = db.prepare('SELECT COUNT(*) as count FROM matches').get().count;
 
-  console.log(`[Seed] Seeding completed successfully!`);
-  console.log(`  - Total Profiles: ${profileCount} (1 Demo User + ${candidateCount} Candidates)`);
-  console.log(`  - Pre-existing Incoming Likes on Demo User: ${incomingLikesCount} (Candidates: [${PRE_EXISTING_LIKER_IDS.join(', ')}])`);
-  console.log(`  - Initial Mutual Matches: ${matchesCount}`);
+  console.log(`Seeded ${profileCount} profiles (${candidateCount} candidates, ${incomingLikesCount} incoming likes)`);
 
   return {
     profileCount,
@@ -382,13 +372,12 @@ function seedDatabase({ reset = false } = {}) {
   };
 }
 
-// Run immediately if called directly via CLI
 if (require.main === module) {
   try {
     seedDatabase();
     process.exit(0);
   } catch (err) {
-    console.error('[Seed Error]:', err);
+    console.error('Seed failed:', err);
     process.exit(1);
   }
 }

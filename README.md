@@ -1,14 +1,37 @@
-# Coy — Discover Tab (SDE Intern Assignment)
+# Coy — SDE Intern Assignment
 
-A standalone mobile-first profile discovery, swipe, and mutual matching application built for the **Coy SDE Intern Assignment (Part B)**.
+This repository contains my submission for the **Coy SDE Intern Assignment**, covering both **Part A (App Experience & Feature Suggestions)** and **Part B (Discover Tab Implementation)**.
 
 ![Coy Discover Banner](https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&h=400&q=80)
 
 ---
 
-## 1. Overview & Objective
+## Part A: Feature Suggestions for Coy
 
-This repository contains an end-to-end implementation of the swipe-based **Discover** feature alongside Coy's existing experience. The application replicates the core consumer discovery paradigm (card swipes, gesture physics, instant match celebrations, and mutual matches list) while strictly enforcing **Coy's Core Privacy Promise**: **incoming likes remain 100% confidential and are never revealed unless mutual interest is established**.
+After exploring the live app at `app.getcoy.com` (OTP sign-in, adding crushes, email verification, invites, and slot inventory), here are two core features that would improve the product:
+
+### 1. Anonymous Campus / Circle Hints
+* **The idea:**  
+  When you add someone who isn't on Coy yet (or who hasn't added you back), they receive an invite link or notification that usually just says *"Someone added you on Coy"*. In practice, most people ignore this because it looks like generic spam.  
+  Instead, Coy could show a vague, aggregated hint that sparks curiosity without giving away identity—for example:  
+  > *"Someone from your college batch (e.g. Class of '26) added you to their crush list."*  
+  > Or: *"Someone in your university circle added you."*
+* **Why it is needed:**  
+  The biggest hurdle in a secret crush app is the cold-start problem. If the person I like doesn't use Coy, my slot sits idle unless they happen to join. A generic invite text usually gets ignored, but knowing that someone from their immediate campus or batch added them creates strong curiosity to download the app and add their own crushes. It drives signups organically while keeping the sender completely anonymous.
+
+### 2. Expiring Crush Slots (Semester / 30-Day Window)
+* **The idea:**  
+  Give users an option to set a time limit on their crush slots—such as 30 days, 60 days, or "End of Semester". If the other person doesn't add them back within that window, the slot silently frees up and returns to the user's inventory.
+* **Why it is needed:**  
+  College crushes don't stay the same forever. If someone had a crush during a fall semester class, but the other person joins Coy six months later during summer when they have already moved on, an unexpected match out of nowhere can be socially awkward. Letting entries expire naturally keeps things low-pressure, ensures the database stays fresh, and gives users a reason to open the app each month or semester to refresh their slots.
+
+---
+
+## Part B: Discover Tab Implementation
+
+### 1. Overview & Scope
+
+This is an end-to-end implementation of the swipe-based **Discover** feature alongside Coy's existing experience. It replicates the core consumer discovery paradigm (card swipes, gesture physics, instant match celebrations, and mutual matches list) while strictly enforcing **Coy's Core Privacy Promise**: **incoming likes remain confidential and are never revealed unless mutual interest is established**.
 
 Per the assignment specification:
 * **Home Tab**: Maintained as a clean placeholder.
@@ -16,7 +39,7 @@ Per the assignment specification:
 
 ---
 
-## 2. Key Features
+### 2. Key Features
 
 - **Mobile-First Responsive UI**: Styled with Tailwind CSS, adapted for mobile viewports, tablets, and desktop displays.
 - **Card Swiping & Gestures**:
@@ -41,24 +64,24 @@ Per the assignment specification:
 
 ---
 
-## 3. Technology Stack
+### 3. Technology Stack
 
-### **Frontend**
+#### **Frontend**
 * **React.js 18** — Component architecture and declarative UI state.
-* **Vite 6** — Lightning-fast development server and optimized production bundler.
+* **Vite 6** — Development server and optimized production bundler.
 * **Tailwind CSS 3** — Utility-first styling with custom dark-mode Coy color tokens.
-* **Framer Motion 11** — Native-feel drag gestures, spring physics, and card exit/entry transitions.
+* **Framer Motion 11** — Drag gestures, spring physics, and card exit/entry transitions.
 * **Lucide React** — Minimalist SVG iconography.
 
-### **Backend**
+#### **Backend**
 * **Node.js** — JavaScript runtime environment.
 * **Express.js 4** — RESTful API routing, JSON body parsing, CORS middleware, and error handling.
-* **better-sqlite3 11** — High-performance, synchronous SQLite driver with WAL mode and foreign key enforcement.
+* **better-sqlite3 11** — Synchronous SQLite driver with WAL mode and foreign key enforcement.
 * **dotenv** — Environment configuration management.
 
 ---
 
-## 4. Project Architecture & Directory Structure
+### 4. Project Architecture & Directory Structure
 
 The project enforces strict separation of concerns between backend business logic and frontend presentation:
 
@@ -138,11 +161,11 @@ Coy/
 
 ---
 
-## 5. Database Schema & Design
+### 5. Database Schema & Design
 
 The SQLite database (`coy.db`) enforces relational integrity via three normalized tables:
 
-### 1. `profiles`
+#### 1. `profiles`
 Stores all discoverable candidates as well as the predefined demo user.
 ```sql
 CREATE TABLE profiles (
@@ -158,7 +181,7 @@ CREATE TABLE profiles (
 );
 ```
 
-### 2. `swipes`
+#### 2. `swipes`
 Tracks every like or pass action.
 ```sql
 CREATE TABLE swipes (
@@ -171,7 +194,7 @@ CREATE TABLE swipes (
 );
 ```
 
-### 3. `matches`
+#### 3. `matches`
 Stores confirmed reciprocal mutual likes.
 ```sql
 CREATE TABLE matches (
@@ -186,11 +209,11 @@ CREATE TABLE matches (
 
 ---
 
-## 6. API Documentation
+### 6. API Documentation
 
 Base URL: `http://localhost:5001/api`
 
-### `GET /api/feed`
+#### `GET /api/feed`
 Retrieves unswiped candidate profiles for the demo user (`id: 1`).
 * **Request**: None.
 * **Privacy**: Does not join or expose incoming likes.
@@ -286,7 +309,7 @@ Health check endpoint. Returns `200 OK` with status and UTC timestamp.
 
 ---
 
-## 7. Matching Algorithm & Privacy Implementation
+### 7. Matching Algorithm & Privacy Implementation
 
 1. **Deterministic Mutual Evaluation**:
    When the demo user (`id: 1`) swipes `LIKE` on candidate `X`:
@@ -303,19 +326,19 @@ Health check endpoint. Returns `200 OK` with status and UTC timestamp.
 
 ---
 
-## 8. Installation & Local Setup
+### 8. Installation & Local Setup
 
-### Prerequisites
+#### Prerequisites
 * **Node.js**: v18.0.0 or higher (tested on Node v24.5.0)
 * **npm**: v9.0.0 or higher
 
-### Step 1: Clone the Repository
+#### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/<your-username>/coy-discover.git
 cd coy-discover
 ```
 
-### Step 2: Configure Environment Variables
+#### Step 2: Configure Environment Variables
 Copy the example environment files (defaults are preconfigured for local dev):
 ```bash
 cp backend/.env.example backend/.env
@@ -334,7 +357,7 @@ cp frontend/.env.example frontend/.env
   VITE_API_BASE_URL=http://localhost:5001/api
   ```
 
-### Step 3: Install Dependencies
+#### Step 3: Install Dependencies
 ```bash
 # Install backend dependencies
 cd backend
@@ -346,7 +369,7 @@ npm install
 cd ..
 ```
 
-### Step 4: Initialize & Seed the Database
+#### Step 4: Initialize & Seed the Database
 ```bash
 cd backend
 npm run seed
@@ -355,7 +378,7 @@ cd ..
 * Populates 32 diverse candidate profiles (`id: 2–33`) and 1 Demo User (`id: 1`).
 * Pre-seeds 8 incoming likes on the demo user from profiles: `[2, 5, 8, 12, 16, 20, 24, 30]`.
 
-### Step 5: Start the Development Servers
+#### Step 5: Start the Development Servers
 Open two terminal windows:
 
 * **Terminal 1: Backend Server**
@@ -374,7 +397,7 @@ Open two terminal windows:
 
 ---
 
-## 9. Testing & Quality Assurance
+### 9. Testing & Quality Assurance
 
 The backend includes a comprehensive, multi-layer automated test suite covering schema integrity, API contracts, scenario demonstrations, and edge cases:
 
@@ -394,7 +417,7 @@ npm run verify:scenarios
 npm run test:e2e
 ```
 
-### Automated Test Suite Results (74 Assertions)
+#### Automated Test Suite Results (74 Assertions)
 - **Candidate Profile Seeding**: 32 candidates seeded with complete metadata and >= 3 interests.
 - **Scenario A (Mutual Match)**: Swiping right on Profile 2 (Maya Lin) triggers `isMatch: true`, returns match details, and renders in Matches.
 - **Scenario B (One-Sided Like)**: Swiping right on Profile 4 (Chloe Dubois) returns `isMatch: false` and is omitted from Matches.
@@ -405,7 +428,7 @@ npm run test:e2e
 
 ---
 
-## 10. Screenshots
+### 10. Screenshots
 
 | Discover Card Feed | Drag Gesture / Feedback |
 | :---: | :---: |
@@ -417,7 +440,7 @@ npm run test:e2e
 
 ---
 
-## 11. Implemented Requirements & Scope Summary
+### 11. Implemented Requirements & Scope Summary
 
 | Requirement | Status | Notes |
 | :--- | :---: | :--- |

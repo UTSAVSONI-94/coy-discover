@@ -19,7 +19,7 @@ async function request(endpoint, options = {}) {
     const res = await fetch(url, config);
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message || `Request failed with status ${res.status}`);
+      throw new Error(data.error || data.message || `Request failed with status ${res.status}`);
     }
     return data;
   } catch (err) {
@@ -34,6 +34,30 @@ export const api = {
    */
   async checkHealth() {
     return request('/health');
+  },
+
+  /**
+   * Fetch unswiped feed profiles for the demo user
+   */
+  async getFeed() {
+    return request('/feed');
+  },
+
+  /**
+   * Record a LIKE or PASS swipe
+   */
+  async swipe(profileId, action) {
+    return request('/swipe', {
+      method: 'POST',
+      body: JSON.stringify({ profileId, action }),
+    });
+  },
+
+  /**
+   * Fetch mutual matches for the demo user
+   */
+  async getMatches() {
+    return request('/matches');
   },
 };
 

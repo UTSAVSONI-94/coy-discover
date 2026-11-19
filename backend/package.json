@@ -9,7 +9,8 @@
     "dev": "nodemon server.js",
     "seed": "node src/database/seed.js",
     "test:api": "node src/utils/testApis.js",
-    "verify:db": "node src/utils/verifyDb.js"
+    "verify:db": "node src/utils/verifyDb.js",
+    "verify:scenarios": "node src/utils/verifyScenarios.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

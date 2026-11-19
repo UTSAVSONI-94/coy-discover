@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import SwipeableCard from '../components/SwipeableCard';
 import ActionButtons from '../components/ActionButtons';
 import MatchesView from '../components/MatchesView';
+import MatchCelebrationModal from '../components/MatchCelebrationModal';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyFeedState from '../components/EmptyFeedState';
 import ErrorState from '../components/ErrorState';
@@ -37,7 +38,7 @@ const cardVariants = {
 
 /**
  * Discover Page
- * Houses the swipeable profile discovery feed and matches view with Framer Motion animations.
+ * Houses the swipeable profile discovery feed, matches view, and mutual match celebration overlay.
  */
 export default function DiscoverPage() {
   const [activeSection, setActiveSection] = useState('discover'); // 'discover' | 'matches'
@@ -49,6 +50,7 @@ export default function DiscoverPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [exitDirection, setExitDirection] = useState('LIKE');
   const [matchCount, setMatchCount] = useState(0);
+  const [activeMatchModal, setActiveMatchModal] = useState(null);
 
   // Ref lock to completely prevent simultaneous or double swipe submissions
   const processingRef = useRef(false);
@@ -97,15 +99,16 @@ export default function DiscoverPage() {
     const targetProfile = currentProfile;
 
     try {
-      // 1. Send the swipe request to backend
+      // 1. Send swipe action to backend
       const res = await api.swipe(targetProfile.id, action);
 
-      // 2. Set exit direction for Framer Motion exit animation
+      // 2. Set exit direction for animation
       setExitDirection(action);
 
-      // 3. If action resulted in a mutual match, increment match count
+      // 3. If action resulted in a mutual match, trigger celebration modal & increment count
       if (res.isMatch) {
         setMatchCount((prev) => prev + 1);
+        setActiveMatchModal(res.match);
       }
 
       // 4. Update the current profile only after successful backend processing
@@ -225,6 +228,18 @@ export default function DiscoverPage() {
           </div>
         )}
       </main>
+
+      {/* "It's a Match!" Celebration Overlay */}
+      {activeMatchModal && (
+        <MatchCelebrationModal
+          match={activeMatchModal}
+          onClose={() => setActiveMatchModal(null)}
+          onViewMatches={() => {
+            setActiveMatchModal(null);
+            setActiveSection('matches');
+          }}
+        />
+      )}
     </div>
   );
 }

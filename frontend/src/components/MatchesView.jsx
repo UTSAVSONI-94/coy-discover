@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Heart, MapPin, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import { handleImageError } from '../utils/imageFallback';
 
 /**
  * MatchesView Component
@@ -100,6 +101,7 @@ export default function MatchesView() {
                 <img
                   src={profile.photo}
                   alt={profile.name}
+                  onError={handleImageError}
                   className="w-full h-full object-cover"
                 />
               </div>

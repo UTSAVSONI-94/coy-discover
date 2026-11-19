@@ -10,7 +10,8 @@
     "seed": "node src/database/seed.js",
     "test:api": "node src/utils/testApis.js",
     "verify:db": "node src/utils/verifyDb.js",
-    "verify:scenarios": "node src/utils/verifyScenarios.js"
+    "verify:scenarios": "node src/utils/verifyScenarios.js",
+    "test:e2e": "node src/utils/e2eEdgeCaseTests.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

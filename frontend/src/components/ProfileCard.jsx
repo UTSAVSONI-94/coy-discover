@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Sparkles, User } from 'lucide-react';
-
-/**
- * Fallback avatar SVG data URI if photo cannot be loaded
- */
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+import { FALLBACK_AVATAR } from '../utils/imageFallback';
 
 /**
  * ProfileCard Component
@@ -29,7 +25,7 @@ export default function ProfileCard({ profile }) {
         )}
 
         <img
-          src={imageError ? DEFAULT_AVATAR : photo}
+          src={imageError ? FALLBACK_AVATAR : photo}
           alt={name}
           onLoad={() => setImageLoaded(true)}
           onError={() => {

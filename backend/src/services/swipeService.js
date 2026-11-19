@@ -93,8 +93,18 @@ const swipeService = {
       };
     });
 
-    return executeSwipeTransaction();
+    try {
+      return executeSwipeTransaction();
+    } catch (err) {
+      if (err.message && err.message.includes('UNIQUE constraint failed')) {
+        const conflictErr = new Error('You have already swiped on this profile.');
+        conflictErr.status = 409;
+        throw conflictErr;
+      }
+      throw err;
+    }
   },
 };
 
 module.exports = swipeService;
+

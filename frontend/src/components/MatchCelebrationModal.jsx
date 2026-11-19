@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Sparkles, Compass, ArrowRight } from 'lucide-react';
+import { handleImageError } from '../utils/imageFallback';
 
 /**
  * MatchCelebrationModal Component
@@ -48,6 +49,7 @@ export default function MatchCelebrationModal({ match, onClose, onViewMatches })
             <img
               src={profile.photo}
               alt={profile.name}
+              onError={handleImageError}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
@@ -87,3 +89,4 @@ export default function MatchCelebrationModal({ match, onClose, onViewMatches })
     </AnimatePresence>
   );
 }
+

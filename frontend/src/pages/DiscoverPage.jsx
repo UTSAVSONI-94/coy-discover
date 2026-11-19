@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 import SwipeableCard from '../components/SwipeableCard';
+import ProfileCard from '../components/ProfileCard';
 import ActionButtons from '../components/ActionButtons';
 import MatchesView from '../components/MatchesView';
 import MatchCelebrationModal from '../components/MatchCelebrationModal';
@@ -10,35 +10,9 @@ import EmptyFeedState from '../components/EmptyFeedState';
 import ErrorState from '../components/ErrorState';
 import { Sparkles, Compass, Heart, AlertCircle } from 'lucide-react';
 
-const cardVariants = {
-  enter: {
-    scale: 0.95,
-    opacity: 0,
-    y: 10,
-  },
-  center: {
-    scale: 1,
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.2,
-      ease: 'easeOut',
-    },
-  },
-  exit: (direction) => ({
-    x: direction === 'LIKE' ? 400 : -400,
-    opacity: 0,
-    rotate: direction === 'LIKE' ? 20 : -20,
-    transition: {
-      duration: 0.25,
-      ease: 'easeIn',
-    },
-  }),
-};
-
 /**
  * Discover Page
- * Houses the swipeable profile discovery feed, matches view, and mutual match celebration overlay.
+ * Features smooth layered deck card animations, instant fly-out responses, and mutual match celebrations.
  */
 export default function DiscoverPage() {
   const [activeSection, setActiveSection] = useState('discover'); // 'discover' | 'matches'
@@ -47,13 +21,12 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [swipeError, setSwipeError] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [exitDirection, setExitDirection] = useState('LIKE');
   const [matchCount, setMatchCount] = useState(0);
   const [activeMatchModal, setActiveMatchModal] = useState(null);
+  const [swipeTrigger, setSwipeTrigger] = useState(null); // 'LIKE' | 'PASS' | null
 
   // Ref lock to completely prevent simultaneous or double swipe submissions
-  const processingRef = useRef(false);
+  const isSwipingRef = useRef(false);
 
   // Load feed and initial match count from backend
   const loadData = useCallback(async () => {
@@ -81,46 +54,45 @@ export default function DiscoverPage() {
   }, [loadData]);
 
   const currentProfile = feed[currentIndex];
+  const nextProfile = feed[currentIndex + 1];
   const hasProfilesLeft = currentIndex < feed.length;
 
   /**
    * Primary Swipe Handler
-   * Handles both desktop button clicks and mobile drag gestures.
-   * Strictly enforces backend-first resolution and transaction safety.
+   * Triggered once card animation starts flying out.
    */
-  const handleSwipe = async (action) => {
-    // Prevent simultaneous or rapid clicks
-    if (processingRef.current || isProcessing || !currentProfile) return;
-
-    processingRef.current = true;
-    setIsProcessing(true);
-    setSwipeError(null);
+  const handleCardSwiped = async (action) => {
+    if (!currentProfile) return;
 
     const targetProfile = currentProfile;
+    setSwipeTrigger(null);
 
+    // Advance feed immediately so the next card in deck is interactive
+    setCurrentIndex((prev) => prev + 1);
+
+    // Send backend request concurrently
     try {
-      // 1. Send swipe action to backend
       const res = await api.swipe(targetProfile.id, action);
 
-      // 2. Set exit direction for animation
-      setExitDirection(action);
-
-      // 3. If action resulted in a mutual match, trigger celebration modal & increment count
       if (res.isMatch) {
         setMatchCount((prev) => prev + 1);
         setActiveMatchModal(res.match);
       }
-
-      // 4. Update the current profile only after successful backend processing
-      setCurrentIndex((prev) => prev + 1);
     } catch (err) {
       console.error('[Swipe Error]:', err);
-      // Restore card and inform user on failure without silently dropping the profile
-      setSwipeError(err.message || 'Failed to record swipe. Please try again.');
+      setSwipeError(err.message || 'Failed to sync swipe with server.');
     } finally {
-      setIsProcessing(false);
-      processingRef.current = false;
+      isSwipingRef.current = false;
     }
+  };
+
+  /**
+   * Desktop button click handler
+   */
+  const handleButtonClick = (action) => {
+    if (isSwipingRef.current || !currentProfile) return;
+    isSwipingRef.current = true;
+    setSwipeTrigger(action);
   };
 
   return (
@@ -170,7 +142,7 @@ export default function DiscoverPage() {
 
       {/* Ephemeral Swipe Error Banner */}
       {swipeError && (
-        <div className="mx-4 mt-2 p-2.5 rounded-xl bg-red-950/80 border border-red-800/80 text-xs text-red-200 flex items-center gap-2 animate-fadeIn">
+        <div className="mx-4 mt-2 p-2.5 rounded-xl bg-red-950/80 border border-red-800/80 text-xs text-red-200 flex items-center gap-2 animate-fadeIn z-40">
           <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
           <span className="flex-1">{swipeError}</span>
           <button
@@ -188,7 +160,7 @@ export default function DiscoverPage() {
           <MatchesView />
         ) : (
           <div className="flex-1 flex flex-col justify-between">
-            {/* Card Stack Area */}
+            {/* Card Deck Area */}
             <div className="relative flex-1 flex items-center justify-center my-auto min-h-[500px]">
               {loading ? (
                 <LoadingSkeleton />
@@ -197,32 +169,35 @@ export default function DiscoverPage() {
               ) : !hasProfilesLeft ? (
                 <EmptyFeedState onRefresh={loadData} />
               ) : (
-                <AnimatePresence mode="wait" custom={exitDirection}>
-                  <motion.div
-                    key={currentProfile.id}
-                    custom={exitDirection}
-                    variants={cardVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    className="w-full flex items-center justify-center"
-                  >
+                <div className="relative w-full flex items-center justify-center">
+                  {/* Background Next Card in Deck */}
+                  {nextProfile && (
+                    <div
+                      key={`bg-${nextProfile.id}`}
+                      className="absolute inset-0 flex items-center justify-center scale-95 translate-y-3 opacity-60 pointer-events-none transition-all duration-200 z-10"
+                    >
+                      <ProfileCard profile={nextProfile} />
+                    </div>
+                  )}
+
+                  {/* Active Foreground Card */}
+                  <div key={`active-${currentProfile.id}`} className="w-full z-20">
                     <SwipeableCard
                       profile={currentProfile}
-                      onSwipe={handleSwipe}
-                      disabled={isProcessing}
+                      swipeTrigger={swipeTrigger}
+                      onSwipe={handleCardSwiped}
                     />
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
+                </div>
               )}
             </div>
 
             {/* Desktop and Touch Action Buttons */}
             {hasProfilesLeft && !loading && !error && (
               <ActionButtons
-                onPass={() => handleSwipe('PASS')}
-                onLike={() => handleSwipe('LIKE')}
-                disabled={isProcessing}
+                onPass={() => handleButtonClick('PASS')}
+                onLike={() => handleButtonClick('LIKE')}
+                disabled={Boolean(swipeTrigger)}
               />
             )}
           </div>

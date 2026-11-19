@@ -40,3 +40,4 @@ export default function Navigation({ activeTab, onSelectTab }) {
     </nav>
   );
 }
+

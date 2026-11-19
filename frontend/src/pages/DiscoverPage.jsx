@@ -1,16 +1,43 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
-import ProfileCard from '../components/ProfileCard';
+import SwipeableCard from '../components/SwipeableCard';
 import ActionButtons from '../components/ActionButtons';
 import MatchesView from '../components/MatchesView';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyFeedState from '../components/EmptyFeedState';
 import ErrorState from '../components/ErrorState';
-import { Sparkles, Compass, Heart } from 'lucide-react';
+import { Sparkles, Compass, Heart, AlertCircle } from 'lucide-react';
+
+const cardVariants = {
+  enter: {
+    scale: 0.95,
+    opacity: 0,
+    y: 10,
+  },
+  center: {
+    scale: 1,
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.2,
+      ease: 'easeOut',
+    },
+  },
+  exit: (direction) => ({
+    x: direction === 'LIKE' ? 400 : -400,
+    opacity: 0,
+    rotate: direction === 'LIKE' ? 20 : -20,
+    transition: {
+      duration: 0.25,
+      ease: 'easeIn',
+    },
+  }),
+};
 
 /**
  * Discover Page
- * Houses the primary Profile Discovery feed and Matches sub-view.
+ * Houses the swipeable profile discovery feed and matches view with Framer Motion animations.
  */
 export default function DiscoverPage() {
   const [activeSection, setActiveSection] = useState('discover'); // 'discover' | 'matches'
@@ -18,14 +45,20 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [swiping, setSwiping] = useState(false);
+  const [swipeError, setSwipeError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [exitDirection, setExitDirection] = useState('LIKE');
   const [matchCount, setMatchCount] = useState(0);
 
-  // Load feed and initial match count
+  // Ref lock to completely prevent simultaneous or double swipe submissions
+  const processingRef = useRef(false);
+
+  // Load feed and initial match count from backend
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setSwipeError(null);
       const [feedRes, matchesRes] = await Promise.all([
         api.getFeed(),
         api.getMatches(),
@@ -48,25 +81,42 @@ export default function DiscoverPage() {
   const currentProfile = feed[currentIndex];
   const hasProfilesLeft = currentIndex < feed.length;
 
-  // Handle Swipe Actions (Button click)
-  const handleSwipeAction = async (action) => {
-    if (!currentProfile || swiping) return;
+  /**
+   * Primary Swipe Handler
+   * Handles both desktop button clicks and mobile drag gestures.
+   * Strictly enforces backend-first resolution and transaction safety.
+   */
+  const handleSwipe = async (action) => {
+    // Prevent simultaneous or rapid clicks
+    if (processingRef.current || isProcessing || !currentProfile) return;
+
+    processingRef.current = true;
+    setIsProcessing(true);
+    setSwipeError(null);
+
+    const targetProfile = currentProfile;
 
     try {
-      setSwiping(true);
-      const res = await api.swipe(currentProfile.id, action);
+      // 1. Send the swipe request to backend
+      const res = await api.swipe(targetProfile.id, action);
 
-      // If action created a mutual match, update match count
+      // 2. Set exit direction for Framer Motion exit animation
+      setExitDirection(action);
+
+      // 3. If action resulted in a mutual match, increment match count
       if (res.isMatch) {
         setMatchCount((prev) => prev + 1);
       }
 
-      // Advance to next card
+      // 4. Update the current profile only after successful backend processing
       setCurrentIndex((prev) => prev + 1);
     } catch (err) {
-      console.error('Failed to record swipe:', err);
+      console.error('[Swipe Error]:', err);
+      // Restore card and inform user on failure without silently dropping the profile
+      setSwipeError(err.message || 'Failed to record swipe. Please try again.');
     } finally {
-      setSwiping(false);
+      setIsProcessing(false);
+      processingRef.current = false;
     }
   };
 
@@ -115,14 +165,28 @@ export default function DiscoverPage() {
         </div>
       </header>
 
+      {/* Ephemeral Swipe Error Banner */}
+      {swipeError && (
+        <div className="mx-4 mt-2 p-2.5 rounded-xl bg-red-950/80 border border-red-800/80 text-xs text-red-200 flex items-center gap-2 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+          <span className="flex-1">{swipeError}</span>
+          <button
+            onClick={() => setSwipeError(null)}
+            className="text-red-400 hover:text-white text-xs font-bold px-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col p-4 justify-between">
+      <main className="flex-1 flex flex-col p-4 justify-between overflow-hidden">
         {activeSection === 'matches' ? (
           <MatchesView />
         ) : (
           <div className="flex-1 flex flex-col justify-between">
-            {/* Card Area */}
-            <div className="flex-1 flex items-center justify-center my-auto">
+            {/* Card Stack Area */}
+            <div className="relative flex-1 flex items-center justify-center my-auto min-h-[500px]">
               {loading ? (
                 <LoadingSkeleton />
               ) : error ? (
@@ -130,16 +194,32 @@ export default function DiscoverPage() {
               ) : !hasProfilesLeft ? (
                 <EmptyFeedState onRefresh={loadData} />
               ) : (
-                <ProfileCard profile={currentProfile} />
+                <AnimatePresence mode="wait" custom={exitDirection}>
+                  <motion.div
+                    key={currentProfile.id}
+                    custom={exitDirection}
+                    variants={cardVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    className="w-full flex items-center justify-center"
+                  >
+                    <SwipeableCard
+                      profile={currentProfile}
+                      onSwipe={handleSwipe}
+                      disabled={isProcessing}
+                    />
+                  </motion.div>
+                </AnimatePresence>
               )}
             </div>
 
-            {/* Bottom Actions Area */}
+            {/* Desktop and Touch Action Buttons */}
             {hasProfilesLeft && !loading && !error && (
               <ActionButtons
-                onPass={() => handleSwipeAction('PASS')}
-                onLike={() => handleSwipeAction('LIKE')}
-                disabled={swiping}
+                onPass={() => handleSwipe('PASS')}
+                onLike={() => handleSwipe('LIKE')}
+                disabled={isProcessing}
               />
             )}
           </div>

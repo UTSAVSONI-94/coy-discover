@@ -31,3 +31,4 @@ export default function ActionButtons({ onPass, onLike, disabled = false }) {
     </div>
   );
 }
+

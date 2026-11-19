@@ -310,8 +310,8 @@ const PRE_EXISTING_LIKER_IDS = [2, 5, 8, 12, 16, 20, 24, 30];
  * Seed the database with demo user, candidates, and pre-existing incoming likes.
  * Uses SQLite transaction and INSERT OR REPLACE / INSERT OR IGNORE for idempotency.
  */
-function seedDatabase() {
-  console.log('[Seed] Starting database seeding...');
+function seedDatabase({ reset = false } = {}) {
+  console.log(`[Seed] Starting database seeding (reset=${reset})...`);
 
   const insertProfileStmt = db.prepare(`
     INSERT INTO profiles (id, name, age, photo, bio, location, interests, is_demo)
@@ -332,6 +332,15 @@ function seedDatabase() {
   `);
 
   const runSeeding = db.transaction(() => {
+    // If reset is requested, clear demo user outgoing swipes & matches
+    if (reset) {
+      db.prepare('DELETE FROM swipes WHERE swiper_id = ?').run(CONSTANTS.DEMO_USER_ID);
+      db.prepare('DELETE FROM matches WHERE user_one_id = ? OR user_two_id = ?').run(
+        CONSTANTS.DEMO_USER_ID,
+        CONSTANTS.DEMO_USER_ID
+      );
+    }
+
     // 1. Seed Demo User
     insertProfileStmt.run(DEMO_USER);
 
@@ -385,3 +394,4 @@ if (require.main === module) {
 }
 
 module.exports = { seedDatabase, DEMO_USER, MOCK_PROFILES, PRE_EXISTING_LIKER_IDS };
+

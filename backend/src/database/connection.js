@@ -22,3 +22,4 @@ const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 db.exec(schemaSql);
 
 module.exports = db;
+

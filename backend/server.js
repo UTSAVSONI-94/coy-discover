@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const config = require('./src/config/env');
 const healthRoutes = require('./src/routes/healthRoutes');
+const feedRoutes = require('./src/routes/feedRoutes');
+const swipeRoutes = require('./src/routes/swipeRoutes');
+const matchRoutes = require('./src/routes/matchRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
@@ -15,6 +18,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api', healthRoutes);
+app.use('/api', feedRoutes);
+app.use('/api', swipeRoutes);
+app.use('/api', matchRoutes);
 
 // 404 handler for unknown routes
 app.use((req, res) => {
@@ -24,7 +30,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handling middleware
+// Centralized error handling middleware
 app.use(errorHandler);
 
 // Start server

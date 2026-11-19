@@ -41,3 +41,4 @@ CREATE TABLE IF NOT EXISTS matches (
 -- Index for fast lookup on user matches
 CREATE INDEX IF NOT EXISTS idx_matches_user_one ON matches(user_one_id);
 CREATE INDEX IF NOT EXISTS idx_matches_user_two ON matches(user_two_id);
+

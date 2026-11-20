@@ -3,6 +3,9 @@ function resolveApiBaseUrl() {
   if (!envUrl) return 'http://localhost:5001/api';
 
   let url = envUrl.trim();
+  if (!url.includes('.') && !url.startsWith('/')) {
+    url = `${url}.onrender.com`;
+  }
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = `https://${url}`;
   }

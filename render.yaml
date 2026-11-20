@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: coy-backend
+    env: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run seed
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: "*"
+
+  - type: web
+    name: coy-frontend
+    env: static
+    plan: free
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -1,5 +1,7 @@
 # Coy — Discover
 
+**Live Demo:** [https://coy-frontend.onrender.com](https://coy-frontend.onrender.com)
+
 - **Part A:** App feedback & two core feature suggestions
 - **Part B:** Standalone "Discover" tab with swipe interactions, mutual matching, and privacy controls
 
@@ -22,6 +24,9 @@ After testing the live app at `app.getcoy.com` (OTP login, adding crushes, email
 ## Part B: Discover Tab
 
 A mobile-first profile discovery and swiping app built according to the assignment requirements.
+
+- **Live Demo:** [https://coy-frontend.onrender.com](https://coy-frontend.onrender.com)
+- **Backend API:** `https://coy-backend-way8.onrender.com/api`
 
 ### Tech Stack
 - **Frontend:** React 18, Vite, Tailwind CSS, Framer Motion (card drag gestures & physics), Lucide React

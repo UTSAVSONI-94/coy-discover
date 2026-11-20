@@ -1,6 +1,6 @@
 # Coy — Discover
 
-This repository contains my submission for the **Coy SDE Intern Assignment**, covering both **Part A (App Experience & Feature Suggestions)** and **Part B (Discover Tab Implementation)**.
+
 
 ![Coy Discover Banner](https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&h=400&q=80)
 

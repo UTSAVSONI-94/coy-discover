@@ -1,4 +1,4 @@
-# Coy — SDE Intern Assignment
+# Coy — Discover
 
 This repository contains my submission for the **Coy SDE Intern Assignment**, covering both **Part A (App Experience & Feature Suggestions)** and **Part B (Discover Tab Implementation)**.
 

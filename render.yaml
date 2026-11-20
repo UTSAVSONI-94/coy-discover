@@ -23,7 +23,10 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://coy-backend.onrender.com/api
+        fromService:
+          type: web
+          name: coy-backend
+          property: host
     routes:
       - type: rewrite
         source: /*

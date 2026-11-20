@@ -18,11 +18,12 @@ services:
   - type: web
     name: coy-frontend
     env: static
-    plan: free
-    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://coy-backend.onrender.com/api
     routes:
       - type: rewrite
         source: /*

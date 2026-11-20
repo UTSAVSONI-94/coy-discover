@@ -1,6 +1,5 @@
 # Coy — Discover
 
-Submission for the Coy SDE Intern Assignment, covering:
 - **Part A:** App feedback & two core feature suggestions
 - **Part B:** Standalone "Discover" tab with swipe interactions, mutual matching, and privacy controls
 
